@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>NavasCrypto | Market Dashboard</title>
+  <!-- Font Awesome 6 (free CDN) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <!-- Google Fonts: Inter + Space Grotesk for modern look -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+   <script src="https://s3.tradingview.com/tv.js"></script>
+ <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f7f9fc;
+      color: #0b1a2f;
+      scroll-behavior: smooth;
+    }
+
+    /* trendy glass + vibrant background */
+    .site-wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* ========= HEADER (sticky, modern) ========= */
+    .main-header {
+      background: #ffffffdd;
+      backdrop-filter: blur(16px);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02), 0 1px 2px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      padding: 0.75rem 2rem;
+      border-bottom: 1px solid #eef2f6;
+    }
+
+    .header-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: space-between;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .logo-area:hover { transform: scale(1.02); }
+    .logo-icon {
+      background: linear-gradient(135deg, #3b82f6, #7c3aed);
+      width: 38px;
+      height: 38px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: white;
+      box-shadow: 0 6px 12px -6px rgba(59,130,246,0.3);
+    }
+    .logo-text {
+      font-weight: 800;
+      font-size: 1.6rem;
+      background: linear-gradient(120deg, #0f172a, #1e293b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .logo-text span { font-weight: 500; color: #3b82f6; background: none; -webkit-background-clip: unset; }
+
+    /* nav links */
+    .nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem;
+      align-items: center;
+    }
+    .nav-item {
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      font-size: 0.95rem;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #1f2a44;
+      position: relative;
+    }
+    .nav-item i { margin-right: 6px; font-size: 0.9rem; }
+    .nav-item:hover { background: #eef2ff; color: #2563eb; }
+
+    /* right widgets group */
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .search-wrapper {
+      background: #f1f5f9;
+      border-radius: 48px;
+      padding: 0.3rem 0.3rem 0.3rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .search-wrapper:focus-within { background: white; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2);}
+    .search-wrapper input {
+      background: transparent;
+      border: none;
+      padding: 0.45rem 0;
+      font-size: 0.85rem;
+      width: 160px;
+      outline: none;
+    }
+    .search-wrapper button {
+      background: #2563eb;
+      border: none;
+      color: white;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .search-wrapper button:hover { background: #1d4ed8; }
+    .qr-icon, .user-icon {
+      background: #f1f5f9;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 1.1rem;
+    }
+    .qr-icon:hover, .user-icon:hover { background: #e2e8f0; }
+    .portfolio-badge, .watchlist-badge {
+      background: #fef9e3;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .portfolio-badge i, .watchlist-badge i { color: #eab308; }
+
+    /* mega dropdown panels (hidden by default) */
+    .mega-menu {
+      position: absolute;
+      background: white;
+      top: 72px;
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 0 0 24px 24px;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+      padding: 1.5rem 2rem;
+      display: none;
+      z-index: 999;
+      border-top: 1px solid #eef2ff;
+      backdrop-filter: blur(0px);
+    }
+    .mega-menu.show { display: block; }
+    .menu-grid {
+      max-width: 1280px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+      justify-content: space-between;
+    }
+    .menu-col { flex: 1; min-width: 180px; }
+    .menu-col h4 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: #5b6e8c; margin-bottom: 1rem;}
+    .menu-col a, .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0.6rem 0;
+      font-size: 0.9rem;
+      color: #1f2a48;
+      text-decoration: none;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .menu-col a i { width: 24px; color: #4b6bfb; }
+    .menu-col a:hover { color: #2563eb; transform: translateX(4px); }
+    .trending-list span { background: #eef2ff; padding: 2px 8px; border-radius: 30px; font-size: 0.7rem; margin-left: 8px; }
+
+    /* main content area */
+    .main-content { flex: 1; max-width: 1440px; margin: 1.5rem auto; padding: 0 2rem; width: 100%; }
+    .live-ticker {
+      background: #0b1120;
+      color: white;
+      border-radius: 28px;
+      padding: 0.8rem 1.5rem;
+      overflow: hidden;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+    .ticker-text { font-weight: 500; white-space: nowrap; animation: slideLeft 22s linear infinite; display: inline-block; padding-right: 30px; }
+    .ticker-container { flex: 1; overflow: hidden; white-space: nowrap; }
+    @keyframes slideLeft { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+    .section-card {
+      background: white;
+      border-radius: 24px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.02);
+      margin-bottom: 2rem;
+      border: 1px solid #eef2f6;
+    }
+    .flex-between { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-bottom: 1rem; }
+    .crypto-table { width: 100%; border-collapse: collapse; }
+    .crypto-table td, .crypto-table th { padding: 0.9rem 0.2rem; border-bottom: 1px solid #edf2f7; }
+    .positive { color: #10b981; font-weight: 600; }
+    .negative { color: #ef4444; }
+    .watchlist-panel { background: #fafcff; border-radius: 20px; margin-top: 1rem; }
+    /* footer */
+    .main-footer {
+      background: #0f172a;
+      color: #cbd5e6;
+      padding: 2.5rem 2rem 1.5rem;
+      margin-top: 3rem;
+      border-top: 1px solid #1e293b;
+    }
+    .footer-grid {
+      max-width: 1440px;
+      margin: auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+    .footer-col { min-width: 140px; }
+    .footer-col h4 { color: white; margin-bottom: 1rem; font-size: 1rem; }
+    .footer-col a { display: block; color: #9ca3af; text-decoration: none; margin-bottom: 0.5rem; font-size: 0.8rem; }
+    .footer-col a:hover { color: #60a5fa; }
+    .footer-bottom { text-align: center; padding-top: 2rem; border-top: 1px solid #1e2a3a; font-size: 0.75rem; }
+    button, .nav-item, .portfolio-badge, .watchlist-badge { user-select: none; }
+    @media (max-width: 900px) { .header-container { flex-direction: column; align-items: stretch; } .nav-links { justify-content: center; } .header-actions { justify-content: space-between; } }
+  </style>
+</head>
+<body>
+<div class="site-wrapper">
+  <header class="main-header" id="appHeader">
+    <div class="header-container">
+      <div class="logo-area" id="logoClick">
+        <div class="logo-icon"><i class="fas fa-chart-line"></i></div>
+        <div class="logo-text">Navas<span>Cyber</span></div>
+      </div>
+      <div class="nav-links">
+        <div class="nav-item" data-menu="cryptoMenu"><i class="fas fa-coins"></i> Cryptocurrencies</div>
+        <div class="nav-item" data-menu="leaderMenu"><i class="fas fa-trophy"></i> Leaderboard</div>
+        <div class="nav-item" data-menu="dexMenu"><i class="fas fa-chart-simple"></i> DexScan</div>
+        <div class="nav-item" data-menu="exchangeMenu"><i class="fas fa-building-columns"></i> Exchanges</div>
+        <div class="nav-item" data-menu="moreMenu"><i class="fas fa-ellipsis-h"></i> More</div>
+      </div>
+      <div class="header-actions">
+        <div class="portfolio-badge" id="portfolioBtn"><i class="fas fa-briefcase"></i> Portfolio</div>
+        <div class="watchlist-badge" id="watchlistBtn"><i class="fas fa-star"></i> Watchlist</div>
+        <div class="search-wrapper">
+          <input type="text" id="searchInput" placeholder="Symbol (BTC, ETH...)" autocomplete="off">
+          <button id="searchTriggerBtn">Search <i class="fas fa-arrow-right"></i></button>
+        </div>
+        <div class="qr-icon" id="qrIconBtn"><i class="fas fa-qrcode"></i></div>
+        <div class="user-icon" id="userProfileBtn"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg></div>
+      </div>
+    </div>
+
+    <!-- MEGA MENU containers (hidden) -->
+    <div id="cryptoMenu" class="mega-menu">
+      <div class="menu-grid"><div class="menu-col"><h4>CRYPTO ECOSYSTEM</h4><a><i class="fas fa-landmark"></i>Banking</a><a><i class="fas fa-layer-group"></i>Categories</a><a><i class="fas fa-clock"></i>Historical Snapshots</a><a><i class="fas fa-chart-line"></i>Yield</a><a><i class="fas fa-globe"></i>Real World Assets</a><a><i class="fas fa-image"></i>NFT</a></div><div class="menu-col"><h4>MARKET DATA</h4><a><i class="fas fa-chart-simple"></i>Global Charts</a><a><i class="fas fa-chart-pie"></i>Dominance</a></div></div>
+    </div>
+    <div id="leaderMenu" class="mega-menu">
+      <div class="menu-grid"><div class="menu-col"><h4>📈 TRENDING</h4><a>🚀 Trending Coins</a><a>🔥 Upcoming</a><a>🆕 Recently Added</a><a>📉 Gainers & Losers</a><a>👁️ Most Visited</a><a>💬 Community picks</a></div><div class="menu-col"><h4>LEADERBOARD STATS</h4><a><i class="fas fa-chart-line"></i> Global Ranks</a><a><i class="fas fa-medal"></i> Top Volume</a></div></div>
+    </div>
+    <div id="dexMenu" class="mega-menu">
+      <div class="menu-grid"><div class="menu-col"><h4>DEXSCAN SIGNALS</h4><a>📡 Signals</a><a>📈 Trending pairs</a><a>✨ New Pools</a><a>🚀 Gainers</a><a>🐸 Meme Explorer</a><a>👤 Top Traders</a></div></div>
+    </div>
+    <div id="exchangeMenu" class="mega-menu">
+      <div class="menu-grid"><div class="menu-col"><h4>🏛️ Centralized Exchanges (light)</h4><a>Spot <i class="fas fa-chart-line"></i></a><a>Derivatives <i class="fas fa-chart-line"></i></a></div><div class="menu-col"><h4>🔄 Decentralized Exchanges (light)</h4><a>Spot DEX</a><a>Derivative DEX</a></div></div>
+    </div>
+    <div id="moreMenu" class="mega-menu">
+      <div class="menu-grid"><div class="menu-col"><h4>Community & Products</h4><a><i class="fas fa-users"></i> Community</a><a><i class="fas fa-cube"></i> Products</a><a><i class="fas fa-code"></i> API</a><a><i class="fas fa-graduation-cap"></i> Academy</a></div></div>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <!-- Live price ticker scrolling (right to left effect) -->
+    <div class="live-ticker">
+      <i class="fas fa-charging-station"></i> LIVE PRICES
+      <div class="ticker-container" id="liveTickerContainer">
+        <div class="ticker-text" id="tickerText">BTC $68,420 ▲2.1% &nbsp;&nbsp;&nbsp; ETH $3,245 ▼0.8% &nbsp;&nbsp;&nbsp; SOL $152 ▲4.2% &nbsp;&nbsp;&nbsp; XRP $0.58 ▼1.1% &nbsp;&nbsp;&nbsp; DOGE $0.124 ▲3.5% &nbsp;&nbsp;&nbsp; ADA $0.47 ▼0.3% &nbsp;&nbsp;&nbsp; AVAX $36.20 ▲1.9%</div>
+      </div>
+    </div>
+
+    <!-- Portfolio Panel (hidden toggle) -->
+    <div id="portfolioPanel" class="section-card" style="display: none;">
+      <h2><i class="fas fa-briefcase"></i> My Portfolio (simulated)</h2>
+      <p>✨ Track your assets: 2.34 BTC | 12.5 ETH | 540 SOL <br> Total Value: $184,230 USD <br><i class="fas fa-chart-line"></i> +8.2% (30d)</p>
+    </div>
+
+   
+<div id="chart-container">
+    <!-- WebSocket မှတစ်ဆင့် Real-time ဒေတာစီးဆင်းမည် -->
+    <div id="navascyber_chart"></div>
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <script>
+        new TradingView.widget({
+            "symbol": "BINANCE:BTCUSDT",
+            "container_id": "navascyber_chart",
+            "autosize": true,
+            "theme": "dark"
+        });
+    </script>
+</div>
+
+    <!-- Main Crypto Market table (full view) -->
+    <div class="section-card">
+      <div class="flex-between"><h2>📊 Live Crypto Market <span style="font-size:0.8rem;">(Real-time price drift)</span></h2><div>Market Cap: $2.71T ▼0.6% | 24h Vol: $86.08B</div></div>
+      <table class="crypto-table" id="marketTable">
+        <thead><tr><th>#</th><th>Asset</th><th>Price</th><th>24h Change</th><th>Market Cap</th></tr></thead>
+        <tbody id="marketTbody"></tbody>
+      </table>
+    </div>
+  </main>
+
+  <footer class="main-footer">
+    <div class="footer-grid" id="footerDynamic">
+      <div class="footer-col"><h4>Products</h4><a>Academy</a><a>Advertise</a><a>CMC Labs</a><a>CMC Max</a><a>Top Stories</a><a>CMC Updates</a><a>Bitcoin ETFs</a><a>Crypto API</a><a>DexScan</a><a>Real-World Assets</a><a>Global Charts</a><a>NFT</a><a>Portfolio</a><a>Watchlist</a><a>Doodles</a><a>Sitemap</a></div>
+      <div class="footer-col"><h4>Company</h4><a>About us</a><a>Terms of use</a><a>Privacy Policy</a><a>Cookie preferences</a><a>Cookie policy</a><a>Community Rules</a><a>Disclaimer</a><a>Methodology</a><a>Careers We’re hiring!</a></div>
+      <div class="footer-col"><h4>Support</h4><a>Get Listed</a><a>Request Form</a><a>Contact Support</a><a>FAQ</a><a>Glossary</a></div>
+      <div class="footer-col"><h4>Socials</h4><a>X (Twitter)</a><a>Community</a><a>Telegram</a><a>Instagram</a><a>Facebook</a><a>Reddit</a><a>LinkedIn</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 NavasCyber / CoinMarketCap inspired. Data streams simulated. <a href="https://www.navascyber.com/a" target="_blank" style="color:#60a5fa;">www.navascyber.com/a</a> — Connection paths configured. System live.</div>
+  </footer>
+</div>
+
+<script>
+  // ---------- MOCK DATA & MARKET TABLE -------------
+  const coins = [
+    { name: "Bitcoin", sym: "BTC", price: 68420, change: 2.1, cap: "1.28T" },
+    { name: "Ethereum", sym: "ETH", price: 3245, change: -0.8, cap: "390B" },
+    { name: "Solana", sym: "SOL", price: 152.4, change: 4.2, cap: "68B" },
+    { name: "XRP", sym: "XRP", price: 0.578, change: -1.1, cap: "31B" },
+    { name: "Dogecoin", sym: "DOGE", price: 0.1245, change: 3.5, cap: "18B" },
+    { name: "Cardano", sym: "ADA", price: 0.472, change: -0.3, cap: "16.5B" }
+  ];
+
+  function renderMarket() {
+    const tbody = document.getElementById('marketTbody');
+    tbody.innerHTML = '';
+    coins.forEach((c, idx) => {
+      const row = `<tr><td>${idx+1}</td><td><i class="fas fa-coins"></i> ${c.name} (${c.sym})</td><td>$${c.price.toLocaleString()}</td><td class="${c.change>=0?'positive':'negative'}">${c.change>=0?'+':''}${c.change}%</td><td>$${c.cap}</td></tr>`;
+      tbody.insertAdjacentHTML('beforeend', row);
+    });
+  }
+  renderMarket();
+
+  // simulate price updates shifting right-to-left effect on ticker & table small drift
+  function updatePricesRandomly() {
+    coins.forEach(c => {
+      let delta = (Math.random() - 0.5) * 0.6;
+      let newChange = c.change + delta;
+      newChange = Math.min(12, Math.max(-12, newChange));
+      let newPrice = c.price * (1 + (delta/100));
+      if (newPrice > 0) c.price = parseFloat(newPrice.toFixed(2));
+      c.change = parseFloat(newChange.toFixed(1));
+    });
+    renderMarket();
+    // update ticker text from coins (right to left animation fresh)
+    const tickerStr = coins.map(c => `${c.sym} $${c.price.toLocaleString()} ${c.change>=0?'▲':'▼'}${Math.abs(c.change)}%`).join(' &nbsp;&nbsp;&nbsp; ');
+    const tickerDiv = document.getElementById('tickerText');
+    if(tickerDiv) tickerDiv.innerText = tickerStr + ' &nbsp;&nbsp;&nbsp; ' + tickerStr;
+  }
+  setInterval(updatePricesRandomly, 3800);
+  // initial ticker fill
+  setTimeout(() => updatePricesRandomly(), 100);
+
+  // UI interactions: Mega menus + toggles
+  const menus = ['cryptoMenu','leaderMenu','dexMenu','exchangeMenu','moreMenu'];
+  function hideAllMenus() { menus.forEach(m => document.getElementById(m)?.classList.remove('show')); }
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const menuId = item.getAttribute('data-menu');
+      hideAllMenus();
+      if(menuId) { const target = document.getElementById(menuId); if(target) target.classList.toggle('show'); }
+    });
+  });
+  document.body.addEventListener('click', (e) => { if(!e.target.closest('.nav-item') && !e.target.closest('.mega-menu')) hideAllMenus(); });
+
+  // LOGO click: shows cryptocurrencies mega menu (cryptoMenu)
+  document.getElementById('logoClick').addEventListener('click', () => {
+    hideAllMenus();
+    document.getElementById('cryptoMenu').classList.toggle('show');
+  });
+
+  // Portfolio panel & Watchlist display
+  const portPanel = document.getElementById('portfolioPanel');
+  const watchPanel = document.getElementById('watchlistPanel');
+  document.getElementById('portfolioBtn').addEventListener('click', () => {
+    portPanel.style.display = portPanel.style.display === 'none' ? 'block' : 'none';
+    if(watchPanel.style.display === 'block') watchPanel.style.display = 'none';
+  });
+  document.getElementById('watchlistBtn').addEventListener('click', () => {
+    watchPanel.style.display = watchPanel.style.display === 'none' ? 'block' : 'none';
+    if(portPanel.style.display === 'block') portPanel.style.display = 'none';
+  });
+  document.getElementById('closeWatchlist')?.addEventListener('click', () => { watchPanel.style.display = 'none'; });
+
+  // Search trigger: input symbol and search, shows alert with dynamic (use trigger search)
+  const searchBtn = document.getElementById('searchTriggerBtn');
+  const searchInput = document.getElementById('searchInput');
+  function triggerSearch() {
+    let symbol = searchInput.value.trim().toUpperCase();
+    if(symbol === "") { alert("Please enter a symbol (e.g., BTC, ETH)"); return; }
+    const found = coins.find(c => c.sym === symbol);
+    if(found) alert(`✅ Found ${found.name} (${found.sym})\nPrice: $${found.price}\n24h Change: ${found.change}%`);
+    else alert(`⚠️ Symbol "${symbol}" not found in current top list. Try BTC, ETH, SOL, XRP...`);
+  }
+  searchBtn.addEventListener('click', triggerSearch);
+  searchInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') triggerSearch(); });
+
+  // QR icon: Show app download QR info
+  const qrBtn = document.getElementById('qrIconBtn');
+  qrBtn.addEventListener('click', () => { alert("📱 Download NavasCyber App: Scan QR from official site. Coming soon on iOS/Android. Track crypto on the go!"); });
+  
+  <!-- Index စာမျက်နှာ သို့မဟုတ် Main Page တွင် ထည့်ရန် -->
+<div class="profile-container" style="position: relative; display: inline-block;">
+  <!-- သင်၏ Profile SVG Button -->
+  <button id="userProfileBtn" style="background: none; border: none; cursor: pointer;">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+      <circle cx="12" cy="7" r="4"></circle>
+    </svg>
+  </button>
+
+  <!-- Dropdown Menu List -->
+  <div id="profileDropdown" style="display: none; position: absolute; right: 0; background: white; border: 1px solid #ccc; box-shadow: 0 4px 8px rgba(0,0,0,0.1); z-index: 100; width: 180px;">
+    <a href="login.html" style="display: block; padding: 10px; text-decoration: none; color: black;">👤 Login</a>
+    <a href="register.html" style="display: block; padding: 10px; text-decoration: none; color: black;">📝 Register</a>
+    <a href="Setting.html" style="display: block; padding: 10px; text-decoration: none; color: black;">⚙️ Setting</a>
+    <a href="customerservice.html" style="display: block; padding: 10px; text-decoration: none; color: black;">🎧 Customer Service</a>
+    <a href="sentemail.html" style="display: block; padding: 10px; text-decoration: none; color: black;">✉️ Sent Email</a>
+    <a href="moreabout.html" style="display: block; padding: 10px; text-decoration: none; color: black;">ℹ️ More About</a>
+  </div>
+</div>
+
+<script>
+  const userBtn = document.getElementById('userProfileBtn');
+  const dropdown = document.getElementById('profileDropdown');
+
+  // SVG ကို နှိပ်လိုက်ရင် Dropdown Menu ပွင့်လာစေရန်
+  userBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  });
+
+  // အပြင်ဘက်ကို နှိပ်ရင် Menu ပြန်ပိတ်သွားစေရန်
+  window.addEventListener('click', () => {
+    dropdown.style.display = 'none';
+  });
+</script>
+
+  // Leaderboard quick trend tools (submenu items simulation)
+  document.querySelectorAll('#leaderMenu .menu-col a').forEach(link => {
+    link.addEventListener('click', (e) => { e.preventDefault(); alert("📊 Leaderboard stats: Trending: PEPE, WIF; Gainers: +22% ; Most visited: BTC, ETH."); hideAllMenus(); });
+  });
+  // additional crypto menu items with images? we add inline hint for RWA, NFT (placement already images via font awesome)
+  // DEXSCAN signal, etc.
+  document.querySelectorAll('#dexMenu a, #exchangeMenu a, #moreMenu a, #cryptoMenu a').forEach(a => {
+    a.addEventListener('click', (e) => { e.preventDefault(); alert(`🔍 Feature: ${a.innerText} - coming soon in full version.`); hideAllMenus(); });
+  });
+  
+  // Footer link to navascyber configured
+  const footerLink = document.querySelector('.footer-bottom a');
+  if(footerLink) footerLink.addEventListener('click', (e) => { e.preventDefault(); window.open('https://www.navascyber.com/a', '_blank'); });
+
+  // Additional styling to keep "more" dropdown interactive; all good
+  function initLiveStreaming() { console.log("system live, price feed RTL animation, navascyber link integrated."); }
+  initLiveStreaming();
+
+  // ensure that DexScan and Exchanges mention light skin / spot + derivative text (already present)
+  // Also set up first watchlist content (already visible) and full view market table
+  // Extra: update watchlist based on first two coins live data
+  function updateWatchlistFromMarket() {
+    const btc = coins[0], eth = coins[1];
+    if(document.getElementById('watchlistTable')) {
+      document.getElementById('watchlistTable').innerHTML = `<table class="crypto-table"><tr><th>Coin</th><th>Price</th><th>24h %</th></tr>
+      <tr><td><i class="fab fa-bitcoin"></i> Bitcoin</td><td>$${btc.price.toLocaleString()}</td><td class="${btc.change>=0?'positive':'negative'}">${btc.change>=0?'+':''}${btc.change}%</td></tr>
+      <tr><td><i class="fab fa-ethereum"></i> Ethereum</td><td>$${eth.price.toLocaleString()}</td><td class="${eth.change>=0?'positive':'negative'}">${eth.change>=0?'+':''}${eth.change}%</td></tr></table>`;
+    }
+  }
+  setInterval(updateWatchlistFromMarket, 4000);
+  updateWatchlistFromMarket();
+
+  // Make sure info about footer installation: data paths live
+  console.log("All paths: footer links & connection configured .2a/11/11/ - flow active");
+</script>
+</body>
+</html>
