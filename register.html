@@ -1,0 +1,45 @@
+<!-- register.html Use on pageန် -->
+<h2>User Registration</h2>
+<form id="registerForm">
+  <input type="text" id="username" placeholder="Username" required><br><br>
+  <input type="password" id="password" placeholder="Password" required><br><br>
+  <input type="tel" id="phone" placeholder="Phone Number" required><br><br>
+  <input type="text" id="address" placeholder="Home Address" required><br><br>
+  <button type="submit">Register & Go to Admin Dashboard</button>
+</form>
+
+<script>
+  document.getElementById('registerForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    // Data to be automatically set
+    const uidd = "UID-" + Math.floor(Math.random() * 900000 + 100000); // Unique ID  Issuance
+    const registerDate = new Date().toLocaleString();
+    
+    // Collecting new user data
+    const userData = {
+      username: document.getElementById('username').value,
+      uidd: uidd,
+      password: document.getElementById('password').value,
+      phone: document.getElementById('phone').value,
+      address: document.getElementById('address').value,
+      deposit: 0, 
+      withdrawal: 0,
+      ip: "192.168.1." + Math.floor(Math.random() * 254), // IP Example change
+      kyc: "Pending", // Not yet confirmed.
+      totalBalance: 0,
+      status: "On",
+      loginTimes: 1,
+      registerDate: registerDate
+    };
+
+    // Taking data from the current database (LocalStorage) and inserting it into an array
+    let usersList = JSON.parse(localStorage.getItem('usersDatabase')) || [];
+    usersList.push(userData);
+    localStorage.setItem('usersDatabase', JSON.stringify(usersList));
+
+    alert("Registration Successful!");
+    //To access the admin dashboard directly as specified
+    window.location.href = "admindashboard.html"; 
+  });
+</script>
