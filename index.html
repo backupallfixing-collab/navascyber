@@ -476,13 +476,13 @@
   const userBtn = document.getElementById('userProfileBtn');
   const dropdown = document.getElementById('profileDropdown');
 
-  // SVG ကို နှိပ်လိုက်ရင် Dropdown Menu ပွင့်လာစေရန်
+  // SVG onclick Dropdown Menu be open
   userBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
   });
 
-  // အပြင်ဘက်ကို နှိပ်ရင် Menu ပြန်ပိတ်သွားစေရန်
+  // click out Menu menu off
   window.addEventListener('click', () => {
     dropdown.style.display = 'none';
   });
